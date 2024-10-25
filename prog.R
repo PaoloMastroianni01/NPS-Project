@@ -113,7 +113,30 @@ rm(language_df)
 data_scientist <- data_scientist[,-9]
 
 #write.csv(data_scientist,"reduced_dataset.csv",row.names = FALSE)
+
+
+
 #DA QUI IN POI USARE IL REDUCED DATASET-------------------------------------------
 data_scientist <- read.csv("reduced_dataset.csv",header=T)
+data_scientist[1:6] <- lapply(data_scientist[c(1,2,3,4,5,6)], as.factor)
 
+#un po' di tabelle per vedere come sono bilanciate le varie classi
+table(data_scientist$Age)
+table(data_scientist$Country)
+table(data_scientist$RemoteWork)
+table(data_scientist$EdLevel)
+table(data_scientist$OrgSize)
+table(data_scientist$ICorPM)
+boxplot(data_scientist$ConvertedCompYearly)
+#rimuoviamo il fenomeno
+data_scientist <- data_scientist[-which(data_scientist$ConvertedCompYearly>4000000),]
+#plottiamo il salario in base alla fascia di età
+salaries <- na.omit(data_scientist$ConvertedCompYearly)
+age <- data_scientist$Age[which(!is.na(data_scientist$ConvertedCompYearly))]
+plot(age,salaries)
+#la mediana sembra crescere in funzione dell'età (almeno fino ai 60 anni)
+#notiamo altri possibili outlier (rimuoverli?)
 
+#e in Italia?
+
+boxplot(data_scientist$ConvertedCompYearly,data_scientist$ConvertedCompYearly[which(data_scientist$Country=="Italy")],names = c("Whole Data","Italy"),main="Salary",col="gold")
