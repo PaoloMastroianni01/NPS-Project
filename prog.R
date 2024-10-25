@@ -1,5 +1,7 @@
 #LIBRARIES ------------
 library('readxl')
+library(DepthProc)
+library(aplpack)
 
 #PREPROCESSING -----------
 #load data
@@ -110,9 +112,9 @@ data_scientist <- cbind(data_scientist, language_df)
 rm(language_df)
 
 #remove column with all used languages
-data_scientist <- data_scientist[,-9]
+data_scientist <- data_scientist[,-c(7,8,9)]
 
-#write.csv(data_scientist,"reduced_dataset.csv",row.names = FALSE)
+write.csv(data_scientist,"reduced_dataset.csv",row.names = FALSE)
 
 
 
@@ -134,9 +136,20 @@ data_scientist <- data_scientist[-which(data_scientist$ConvertedCompYearly>40000
 salaries <- na.omit(data_scientist$ConvertedCompYearly)
 age <- data_scientist$Age[which(!is.na(data_scientist$ConvertedCompYearly))]
 plot(age,salaries)
-#la mediana sembra crescere in funzione dell'età (almeno fino ai 60 anni)
+#la mediana sembra crescere in funzione dell'età (sicuramente perchè aumentando l'età aumentano gli anni di esperienza)
 #notiamo altri possibili outlier (rimuoverli?)
 
 #e in Italia?
 
 boxplot(data_scientist$ConvertedCompYearly,data_scientist$ConvertedCompYearly[which(data_scientist$Country=="Italy")],names = c("Whole Data","Italy"),main="Salary",col="gold")
+
+#Ora consideriamo i developer che hanno indicato sia il salario che gli anni di esperienza
+data <- data_scientist[which(!is.na(data_scientist$ConvertedCompYearly) & !is.na(data_scientist$WorkExp)),]
+plot(data$WorkExp,data$ConvertedCompYearly)
+depthContour(cbind(data$WorkExp,data$ConvertedCompYearly),depth_params = list(method="Tukey"))
+depthPersp(cbind(data$WorkExp,data$ConvertedCompYearly),depth_params = list(method="Tukey"),plot_method = "rgl")
+
+bagplot_data <- bagplot(cbind(data$WorkExp,data$ConvertedCompYearly), factor = 3, show.whiskers = T)   #bagplot        
+bagplot_data
+outliers <- bagplot_data$pxy.outlier  #la funzione trova i punti fuori dal bagplot
+outliers
