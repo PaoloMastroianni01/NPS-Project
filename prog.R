@@ -113,3 +113,7 @@ rm(language_df)
 data_scientist <- data_scientist[,-9]
 
 #write.csv(data_scientist,"reduced_dataset.csv",row.names = FALSE)
+#DA QUI IN POI USARE IL REDUCED DATASET-------------------------------------------
+data_scientist <- read.csv("reduced_dataset.csv",header=T)
+
+
