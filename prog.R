@@ -112,4 +112,4 @@ rm(language_df)
 #remove column with all used languages
 data_scientist <- data_scientist[,-9]
 
-
+#write.csv(data_scientist,"reduced_dataset.csv",row.names = FALSE)
