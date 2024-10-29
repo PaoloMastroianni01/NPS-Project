@@ -11,6 +11,7 @@ data_scientist <- read.csv("reduced_dataset.csv",header=T)
 
 #PREPROCESSING -----------------------
 #transform in factor variables
+data_scientist <- data_scientist[,-c(10,11)] #remove C and C#
 data_scientist[1:7] <- lapply(data_scientist[c(1:7)], as.factor)
 data_scientist[10:16] <- lapply(data_scientist[c(10:16)], as.factor)
 names(data_scientist)[names(data_scientist) == "C.."] <- "Cplusplus" #because ++ gives issues
@@ -37,7 +38,7 @@ rm(na_count)
 
 #DATA VISUALIZATION ----------
 cols <- names(data_scientist)
-cols <- cols[-c(6,8:16)]
+cols <- cols[-c(6,8,9)]
 
 #for each variable of interest, we plot it against the yearly compensation
 for(col in cols){
@@ -46,7 +47,7 @@ data_filtered <- data_scientist[!is.na(ConvertedCompYearly) & !is.na(col), ]
 detach(data_scientist)
 p <- ggplot(data_filtered, aes_string(x = col , y =' ConvertedCompYearly', fill = col)) +
   geom_boxplot(outlier.color = "red", outlier.shape = 16, outlier.size = 2) + # Aggiungi boxplot con outlier
-  scale_x_discrete(labels=NULL) +
+  scale_x_discrete(labels=NULL,drop = T) +
   scale_y_continuous(labels = scales::comma) +  # Formatta l'asse y con le virgole per i grandi numeri
   labs(title = paste("Annual Salary for", col),
        x = paste(col),
@@ -123,7 +124,6 @@ ggplot(data_experience, aes(x = WorkExp, y = ConvertedCompYearly)) +
     axis.title = element_text(size = 14)
   ) +
   scale_color_brewer(palette = "Set1") # Colori per evidenziare gli anni di esperienza
-abline(v=median(data_scientist$ConvertedCompYearly))
 rm(data_experience)
 
 
