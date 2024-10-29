@@ -45,7 +45,8 @@ attach(data_scientist)
 data_filtered <- data_scientist[!is.na(ConvertedCompYearly) & !is.na(col), ]
 detach(data_scientist)
 p <- ggplot(data_filtered, aes_string(x = col , y =' ConvertedCompYearly', fill = col)) +
-  geom_boxplot(outlier.color = "red", outlier.shape = 16, outlier.size = 2) +  # Aggiungi boxplot con outlier
+  geom_boxplot(outlier.color = "red", outlier.shape = 16, outlier.size = 2) + # Aggiungi boxplot con outlier
+  scale_x_discrete(labels=NULL) +
   scale_y_continuous(labels = scales::comma) +  # Formatta l'asse y con le virgole per i grandi numeri
   labs(title = paste("Annual Salary for", col),
        x = paste(col),
@@ -108,8 +109,9 @@ rm(data_america)
 
 #compensation over years of experience and in color put the categorical variable you want
 ggplot(data_experience, aes(x = WorkExp, y = ConvertedCompYearly)) +
-  geom_jitter(aes(color = Cplusplus), width = 0.2, alpha = 0.6) +  # Punti di esperienza
+  geom_jitter(aes(color = EdLevel), width = 0.2, alpha = 0.6) +  # Punti di esperienza
   geom_smooth(method = "lm", se = FALSE, color = "darkred", linetype = "dashed", size = 1.2) +  # Linea di regressione
+  geom_hline(yintercept = median(data_scientist$ConvertedCompYearly,na.rm=T),color = "forestgreen", size=1.2) +
   scale_y_continuous(labels = scales::comma) +
   labs(title = "Annual Salary by Years of Experience",
        x = "Years of Experience",
@@ -121,7 +123,9 @@ ggplot(data_experience, aes(x = WorkExp, y = ConvertedCompYearly)) +
     axis.title = element_text(size = 14)
   ) +
   scale_color_brewer(palette = "Set1") # Colori per evidenziare gli anni di esperienza
+abline(v=median(data_scientist$ConvertedCompYearly))
 rm(data_experience)
+
 
 #depth measures + bagplot
 data_filtered <- data_scientist %>% filter(!is.na(ConvertedCompYearly) & !is.na(WorkExp))
