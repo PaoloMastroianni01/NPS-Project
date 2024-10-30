@@ -30,7 +30,9 @@ p <- ggplot(data_filtered, aes_string(x = col , y =' ConvertedCompYearly', fill 
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
     axis.text = element_text(size = 12),
-    axis.title = element_text(size = 14)
+    axis.title = element_text(size = 14),
+    legend.text = element_text(size = 18),
+    legend.title = element_text(size = 18)
   ) +
   scale_fill_brewer(palette = "Set3")
 print(p)
@@ -116,7 +118,9 @@ ggplot(data_europe, aes(x = Region, y = ConvertedCompYearly, fill = Region)) +
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
     axis.text = element_text(size = 12),
-    axis.title = element_text(size = 14)
+    axis.title = element_text(size = 14),
+    legend.text = element_text(size = 18),
+    legend.title = element_text(size = 18)
   ) +
   scale_fill_brewer(palette = "Set1")  # Palette di colori per differenziare i paesi
 rm(data_europe)
@@ -132,14 +136,16 @@ ggplot(data_america, aes(x = Country, y = ConvertedCompYearly, fill = Country)) 
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
     axis.text = element_text(size = 12),
-    axis.title = element_text(size = 14)
+    axis.title = element_text(size = 14),
+    legend.text = element_text(size = 18),
+    legend.title = element_text(size = 18)
   ) +
   scale_fill_brewer(palette = "Set2")  # Palette di colori per differenziare i paesi
 rm(data_america)
 
 #compensation over years of experience and in color put the categorical variable you want
 ggplot(data_experience, aes(x = WorkExp, y = ConvertedCompYearly)) +
-  geom_jitter(aes(color = Age), width = 0.2, alpha = 0.6) +  # Punti di esperienza
+  geom_jitter(aes(color = WorkExp), width = 0.2, alpha = 0.6) +  # Punti di esperienza
   geom_smooth(method = "lm", se = FALSE, color = "darkred", linetype = "dashed", size = 1.2) +  # Linea di regressione
   #geom_hline(yintercept = median(data_scientist$ConvertedCompYearly,na.rm=T),color = "forestgreen", size=1.2) +
   scale_y_continuous(labels = scales::comma) +
@@ -150,9 +156,13 @@ ggplot(data_experience, aes(x = WorkExp, y = ConvertedCompYearly)) +
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
     axis.text = element_text(size = 12),
-    axis.title = element_text(size = 14)
+    axis.title = element_text(size = 14),
+    #legend.text = element_text(size = 12),
+    #legend.title = element_text(size = 12)
+    legend.position = 'none'
   ) +
-  scale_color_brewer(palette = "Set1") # Colori per evidenziare gli anni di esperienza
+  #scale_color_brewer(palette = "Set1") # Colori per evidenziare gli anni di esperienza
+  scale_color_gradient(low = "lightblue", high = "blue")
 rm(data_experience)
 
 
