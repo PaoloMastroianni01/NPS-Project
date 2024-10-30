@@ -19,7 +19,7 @@ names(data_scientist)[names(data_scientist) == "C.."] <- "Cplusplus" #because ++
 #remove people who are paid less than guys asking elemosina al semaforo
 data_scientist <- data_scientist[-which(data_scientist$ConvertedCompYearly<6000),]
 #remove Elon Musk
-data_scientist <- data_scientist[-which(data_scientist$ConvertedCompYearly>4000000),]
+data_scientist <- data_scientist[-which(data_scientist$ConvertedCompYearly>750000),]
 #remove people who don't say their age
 data_scientist <- data_scientist[-which(data_scientist$Age=='Prefer not to say'),]
 #we will focus only on people who at least attended university
