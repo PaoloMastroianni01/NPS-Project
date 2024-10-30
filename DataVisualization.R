@@ -177,7 +177,7 @@ rm(data_experience)
 data_filtered <- data_scientist %>% filter(!is.na(ConvertedCompYearly) & !is.na(WorkExp))
 
 depth_values <- depthContour(cbind(data_filtered$WorkExp, data_filtered$ConvertedCompYearly), 
-                             depth_params = list(method = "Tukey"))
+                             depth_params = list(method = "Tukey"),ylim = c(0,750000))
 
 bagplot_data <- bagplot(cbind(data_filtered$WorkExp, data_filtered$ConvertedCompYearly), 
                         factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
