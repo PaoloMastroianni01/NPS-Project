@@ -8,18 +8,19 @@ library(dplyr)
 
 #read file
 data_scientist <- read.csv("reduced_dataset.csv",header=T)
+
 #columns we want to plot
 cols <- names(data_scientist)
 cols <- cols[-c(6,8,9:16)]
+vec <- c(1:5,7)
 
 #for each variable of interest, we plot it against the yearly compensation
-for(col in cols){
-attach(data_scientist)
-data_filtered <- data_scientist[!is.na(ConvertedCompYearly) & !is.na(col), ]
-detach(data_scientist)
+for(idx in 1:length(cols)){
+  col <- cols[idx]
+  i <- vec[idx]
+data_filtered <- data_scientist[!is.na(data_scientist$ConvertedCompYearly) & !is.na(data_scientist[,i]), ]
 p <- ggplot(data_filtered, aes_string(x = col , y =' ConvertedCompYearly', fill = col)) +
   geom_boxplot(outlier.color = "red", outlier.shape = 16, outlier.size = 2) + # Aggiungi boxplot con outlier
-  coord_cartesian(ylim=c(0,750000)) +
   scale_x_discrete(labels=NULL,drop = T) +
   scale_y_continuous(labels = scales::comma) +  # Formatta l'asse y con le virgole per i grandi numeri
   labs(title = paste("Annual Salary for", col),
@@ -50,7 +51,6 @@ for (col_name in cols) {
   #histogram occurencies (consider also observations who didnt say their salary)
   p1 <- ggplot(data_scientist, aes_string(x = col_name)) +
     geom_bar(fill = "skyblue", color = "black") +
-    coord_cartesian(ylim=c(0,658)) +
     labs(title = paste("Occurrencies for", col_name),
          x = col_name,
          y = "Frequencies") +
@@ -64,7 +64,6 @@ for (col_name in cols) {
   # Boxplot per chi ha col_name = 0
   p2a <- ggplot(data_0, aes(y = ConvertedCompYearly)) +
     geom_boxplot(fill = "red", color = "black") +
-    coord_cartesian(ylim=c(0,750000)) +
     labs(title = paste("Annual Salary for", col_name, "NO"),
          x = col_name,
          y = "Annual Salary (USD)") +
@@ -73,7 +72,6 @@ for (col_name in cols) {
   # Boxplot per chi ha col_name = 1
   p2b <- ggplot(data_1, aes(y = ConvertedCompYearly)) +
     geom_boxplot(fill = "lightgreen", color = "black") +
-    coord_cartesian(ylim=c(0,750000)) +
     labs(title = paste("Annual Salary for", col_name, "YES"),
          x = col_name,
          y = "Annual Salary (USD)") +
@@ -110,7 +108,6 @@ data_experience <- data_scientist %>%
 #italy vs europe
 ggplot(data_europe, aes(x = Region, y = ConvertedCompYearly, fill = Region)) +
   geom_boxplot(outlier.color = "red", outlier.shape = 16, outlier.size = 2) +
-  coord_cartesian(ylim=c(0,350000)) +
   scale_y_continuous(labels = scales::comma) +
   labs(title = "Annual Salary: Italy vs Other European Countries",
        x = "Country",
@@ -127,7 +124,6 @@ rm(data_europe)
 #italy vs US+Canada
 ggplot(data_america, aes(x = Country, y = ConvertedCompYearly, fill = Country)) +
   geom_boxplot(outlier.color = "red", outlier.shape = 16, outlier.size = 2) +
-  coord_cartesian(ylim=c(0,750000)) +
   scale_y_continuous(labels = scales::comma) +
   labs(title = "Annual Salary: Italy vs United States and Canada",
        x = "Country",
@@ -144,7 +140,6 @@ rm(data_america)
 #compensation over years of experience and in color put the categorical variable you want
 ggplot(data_experience, aes(x = WorkExp, y = ConvertedCompYearly)) +
   geom_jitter(aes(color = Age), width = 0.2, alpha = 0.6) +  # Punti di esperienza
-  coord_cartesian(ylim=c(0,750000)) +
   geom_smooth(method = "lm", se = FALSE, color = "darkred", linetype = "dashed", size = 1.2) +  # Linea di regressione
   #geom_hline(yintercept = median(data_scientist$ConvertedCompYearly,na.rm=T),color = "forestgreen", size=1.2) +
   scale_y_continuous(labels = scales::comma) +
@@ -168,6 +163,6 @@ depth_values <- depthContour(cbind(data_filtered$WorkExp, data_filtered$Converte
                              depth_params = list(method = "Tukey"))
 
 bagplot_data <- bagplot(cbind(data_filtered$WorkExp, data_filtered$ConvertedCompYearly), 
-                        factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
+                        factor = 3, show.whiskers = TRUE)
 outliers <- bagplot_data$pxy.outlier
 outliers
