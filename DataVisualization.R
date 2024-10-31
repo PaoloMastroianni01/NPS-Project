@@ -32,7 +32,7 @@ p <- ggplot(data_filtered, aes_string(x = col , y =' ConvertedCompYearly', fill 
     plot.title = element_text(hjust = 0.5, face = "bold", size = 16),
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 14),
-    legend.text = element_text(size = 15),
+    legend.text = element_text(size = 10),
     legend.title = element_text(size = 18)
   ) +
   scale_fill_brewer(palette = "Set3")
