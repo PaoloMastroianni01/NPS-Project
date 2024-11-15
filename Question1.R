@@ -10,9 +10,7 @@ data_scientist <- read.csv("reduced_dataset.csv",header=T)
 #are at least 5 observations
 data_filtered <- data_scientist %>%
   # Filtra per valori non NA in ConvertedCompYearly
-  filter(!is.na(ConvertedCompYearly) & EdLevel == 'Master’s degree (M.A., M.S., M.Eng., MBA, etc.)' & Age == "25-34 years old" 
-        # & Country != 'Austria' & Country != 'Poland')
-        )%>%
+  filter(!is.na(ConvertedCompYearly) & EdLevel == 'Master’s degree (M.A., M.S., M.Eng., MBA, etc.)' & Age == "25-34 years old")%>%
   # Conta le occorrenze per ogni paese e aggiungi come colonna temporanea `count`
   group_by(Country) %>%
   mutate(count = n()) %>%
@@ -103,4 +101,65 @@ ggplot(data, aes(x = reorder(Country, p_value), y = p_value)) +
   geom_hline(yintercept = .1, linetype = "dashed", color = "red") +
   scale_y_continuous(breaks = c(0,0.05, 0.1, 1))
 #BOOTSTRAP ------------
-#bootstrap confidence intervals per le mediane/delta mediane?
+
+#Prepare a list to save results
+results <- data.frame(
+  Country = character(),
+  Median = numeric(),
+  CI_Lower = numeric(),
+  CI_Upper = numeric(),
+  stringsAsFactors = FALSE
+)
+
+
+n_bootstrap <- 10000
+
+#Functions that computes n_bootstrap datasets, compute its median and then gives a confidence interval for the median of that country
+bootstrap_ci <- function(values, n_bootstrap, conf_level = 0.95) {
+  n <- length(values)
+  boot_medians <- replicate(n_bootstrap, {
+    sample_data <- sample(values, size = n, replace = TRUE)
+    median(sample_data)
+  })
+  alpha <- (1 - conf_level) / 2
+  ci <- quantile(boot_medians, probs = c(alpha, 1 - alpha))
+  list(lower = ci[1], upper = ci[2])
+}
+
+for (country in unique(stipendi$Country)) {
+  data_boot <- stipendi %>% 
+    filter(!is.na(ConvertedCompYearly) & Country == country)
+  
+  #compute sample median and confidence interval
+  ci <- bootstrap_ci(data_boot$ConvertedCompYearly, n_bootstrap)
+  median_sample <- median(data_boot$ConvertedCompYearly, na.rm = TRUE)
+  
+  #add results to data frame
+  results <- rbind(
+    results, 
+    data.frame(
+      Country = country,
+      Median = median_sample,
+      CI_Lower = ci$lower,
+      CI_Upper = ci$upper
+    )
+  )
+}
+
+print(results)
+
+ggplot(results, aes(x = Country, y = Median)) +
+  geom_point(color = "blue") + 
+  geom_errorbar(aes(ymin = CI_Lower, ymax = CI_Upper), width = 0.2) +
+  #coord_flip() +
+  labs(
+    title = "Confidence Intervals for Median by Country",
+    x = "Country",
+    y = "Median and Confidence Interval"
+  ) +
+  geom_hline(yintercept = results[9,3], linetype = "dashed", color = "red") +
+  geom_hline(yintercept = results[9,4], linetype = "dashed", color = "red") +
+  theme_minimal()
+
+table(stipendi$Country)
+
