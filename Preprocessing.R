@@ -125,11 +125,35 @@ na_count <- sapply(data_scientist, function(x) sum(is.na(x)))
 data.frame(NA_Count = na_count)
 rm(na_count)
 
+#remove columns we assessed (during analysis) to be meaningless
+data_scientist <- data_scientist[,-c(5,7)]
+
+#redefine organization sizes
+library(dplyr)
+redefine_orgsize <- function(df) {
+  df %>%
+    mutate(
+      OrgSize = recode_factor(
+        OrgSize,
+        "2 to 9 employees" = "2 to 99",
+        "10 to 19 employees" = "2 to 99",
+        "20 to 99 employees" = "2 to 99",
+        "100 to 499 employees" = "100 to 999",
+        "500 to 999 employees" = "100 to 999",
+        "1,000 to 4,999 employees" = "1000 to 9999",
+        "5,000 to 9,999 employees" = "1000 to 9999",
+        "10,000 or more employees" = "10000 or more"
+      ),
+      #Set order of levels
+      OrgSize = factor(OrgSize, levels = c(
+        "2 to 99", "100 to 999", "1000 to 9999", "10000 or more"
+      ))
+    )
+}
+data_scientist <- redefine_orgsize(data_scientist)
+
 #create csv file with reduced dataset
 write.csv(data_scientist, "reduced_dataset.csv", row.names = FALSE)
-
-
-
 
 
 
