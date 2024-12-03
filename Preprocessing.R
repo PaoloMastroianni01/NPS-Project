@@ -63,12 +63,10 @@ data_scientist <- data_scientist[data_scientist$DevType %in% c('Data scientist o
                                    data_scientist$Employment %in% c('Employed, full-time') &
                                    data_scientist$Country %in% countries, ]
 
-#we add the corresponding number to each column to easily find the useless ones and remove them 
-#colnames(data_scientist) <- paste(colnames(data_scientist), seq_along(colnames(data_scientist)), sep = "_")
 #remove useless columns
 data_scientist <- data_scientist[,-c(1,2,3,5,7,9:14,17,18,23:64,67:83)]
 
-#count and remove the lines with NA
+#count the lines with NA
 na_count <- sapply(data_scientist, function(x) sum(is.na(x)))
 data.frame(NA_Count = na_count)
 #data_scientist_clean <- data_scientist[complete.cases(data_scientist$CompTotal_21), ]
@@ -79,6 +77,7 @@ str(data_scientist)
 
 # target languages
 target_languages <- c("C++", "Julia", "MATLAB", "Python", "R", "Scala", "SQL")
+
 # Build empty auxiliary dataset in which for each observation we write 1 if it uses that language, no otherwise
 language_df <- as.data.frame(matrix(0, nrow = nrow(data_scientist), ncol = length(target_languages)))
 colnames(language_df) <- target_languages
@@ -116,6 +115,7 @@ data_scientist <- data_scientist[-which(data_scientist$EdLevel=='Associate degre
                                           data_scientist$EdLevel=='Primary/elementary school' |
                                           data_scientist$EdLevel=='Secondary school (e.g. American high school, German Realschule or Gymnasium, etc.)'|
                                           data_scientist$EdLevel=='Something else'),]
+
 #remove people who don't know the size of their company and those ones who are not in a company
 data_scientist <- data_scientist[-which(data_scientist$OrgSize=='I don’t know' |
                                           data_scientist$OrgSize=='Just me - I am a freelancer, sole proprietor, etc.'),]
