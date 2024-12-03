@@ -9,11 +9,11 @@ library(dplyr)
 #read file
 data_scientist <- read.csv("reduced_dataset.csv",header=T)
 
+#CATEGORICAL COLUMNS PLOTS ---------------
 #columns we want to plot
 cols <- names(data_scientist)
-cols <- cols[-c(6,8,9:16)]
-vec <- c(1:5,7)
-
+cols <- cols[-c(2,5:14)]
+vec <- c(1,3,4)
 #for each variable of interest, we plot it against the yearly compensation
 for(idx in 1:length(cols)){
   col <- cols[idx]
@@ -38,15 +38,11 @@ p <- ggplot(data_filtered, aes_string(x = col , y =' ConvertedCompYearly', fill 
   scale_fill_brewer(palette = "Set3")
 print(p)
 }
-rm(data_filtered)
-rm(cols)
-rm(col)
-rm(p)
 
+#PROGRAMMING LANGUAGES PLOTS ----------------
 #histograms for each programming language (occurencies and boxplot for annual salary)
 cols <- names(data_scientist)
-cols <- cols[c(10:16)]
-
+cols <- cols[c(8:14)]
 
 attach(data_scientist)
 for (col_name in cols) {
@@ -88,18 +84,7 @@ for (col_name in cols) {
 }
 detach(data_scientist)
 
-rm(col)
-rm(col_name)
-rm(cols)
-rm(p)
-rm(p1)
-rm(p2)
-rm(p2a)
-rm(p2b)
-rm(data_0)
-rm(data_1)
-rm(data_filtered)
-
+#COUNTRIES PLOTS ------------------
 #what about italy
 #filter data
 data_europe <- data_scientist %>%
@@ -128,7 +113,6 @@ ggplot(data_europe, aes(x = Region, y = ConvertedCompYearly, fill = Region)) +
     legend.title = element_text(size = 18)
   ) +
   scale_fill_brewer(palette = "Set1")  # Palette di colori per differenziare i paesi
-rm(data_europe)
 
 #italy vs US+Canada
 ggplot(data_america, aes(x = Country, y = ConvertedCompYearly, fill = Country)) +
@@ -149,6 +133,7 @@ ggplot(data_america, aes(x = Country, y = ConvertedCompYearly, fill = Country)) 
   scale_fill_brewer(palette = "Set2")  # Palette di colori per differenziare i paesi
 rm(data_america)
 
+#EVOLUTION OF COMPENSATION OVER WORK EXPERIENCE PLOT ------------
 #compensation over years of experience and in color put the categorical variable you want
 ggplot(data_experience, aes(x = WorkExp, y = ConvertedCompYearly)) +
   geom_jitter(aes(color = WorkExp), width = 0.2, alpha = 0.6) +  # Punti di esperienza
@@ -170,16 +155,21 @@ ggplot(data_experience, aes(x = WorkExp, y = ConvertedCompYearly)) +
   ) +
   #scale_color_brewer(palette = "Set1") # Colori per evidenziare gli anni di esperienza
   scale_color_gradient(low = "lightblue", high = "blue")
-rm(data_experience)
 
+#OCCURRENCIES FOR WORK LOCATION --------------
+#counts how many people work in person, how many smart working and how many hybrids
+remote_work_counts <- data_scientist %>%
+  count(RemoteWork) %>%
+  arrange(desc(n))
 
-#depth measures + bagplot
-data_filtered <- data_scientist %>% filter(!is.na(ConvertedCompYearly) & !is.na(WorkExp))
+ggplot(remote_work_counts, aes(x = reorder(RemoteWork, -n), y = n, fill = RemoteWork)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  labs(
+    title = "Distribuzione dei livelli di RemoteWork",
+    x = "Livello di RemoteWork",
+    y = "Occorrenze"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_fill_brewer(palette = "Set1")
 
-depth_values <- depthContour(cbind(data_filtered$WorkExp, data_filtered$ConvertedCompYearly), 
-                             depth_params = list(method = "Tukey"),ylim = c(0,750000))
-
-bagplot_data <- bagplot(cbind(data_filtered$WorkExp, data_filtered$ConvertedCompYearly), 
-                        factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
-outliers <- bagplot_data$pxy.outlier
-outliers
