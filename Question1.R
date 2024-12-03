@@ -28,7 +28,7 @@ data_filtered <- data_filtered %>%
   mutate(Country = ifelse(Country == "United States of America", "USA", Country))
 
 #dataset with just the yearly compensation for each nation
-stipendi <- data_filtered[,c(6,9)]
+stipendi <- data_filtered[,c(5,7)]
 
 ggplot(stipendi, aes(x = Country, y = ConvertedCompYearly, fill = Country)) +
   geom_boxplot(outlier.color = "red", outlier.shape = 16, outlier.size = 2) +
