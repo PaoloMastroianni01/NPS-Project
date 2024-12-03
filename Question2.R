@@ -19,7 +19,7 @@ set.seed(19)
 #LOAD AND CLEAN DATASETS -----------
 data_scientist <- read.csv("reduced_dataset.csv",header=T)
 data_filtered <- data_scientist %>% filter(!is.na(ConvertedCompYearly)& !is.na(WorkExp))
-data_filtered <- data_filtered[,c(3,4,6,8,9)]
+data_filtered <- data_filtered[,c(3:7)]
 
 #obtain only europe countries with at least 7 observations and with maximum 20 years of experience (due to lack of data)
 data_europe <- data_filtered %>%
@@ -72,37 +72,7 @@ data_full <- data_full[non_outliers_index, ]
 
 #redefine the organization size factor
 datasets <- list(data_europe = data_europe, data_america = data_america, data_full = data_full)
-
-redefine_orgsize <- function(df) {
-  df %>%
-    mutate(
-      OrgSize = recode_factor(
-        OrgSize,
-        "2 to 9 employees" = "2 to 99",
-        "10 to 19 employees" = "2 to 99",
-        "20 to 99 employees" = "2 to 99",
-        "100 to 499 employees" = "100 to 1000",
-        "500 to 999 employees" = "100 to 1000",
-        "1,000 to 4,999 employees" = "1000 to 10000",
-        "5,000 to 9,999 employees" = "1000 to 10000",
-        "10,000 or more employees" = "10000 or more"
-      ),
-      #Set order of levels
-      OrgSize = factor(OrgSize, levels = c(
-        "2 to 99", "100 to 1000", "1000 to 10000", "10000 or more"
-      ))
-    )
-}
-
-#apply the function to each dataset
-datasets <- lapply(datasets, redefine_orgsize)
-
-data_europe <- datasets$data_europe
-data_america <- datasets$data_america
-data_full <- datasets$data_full
 #ASSESS SIGNIFICANCY OF CATEGORICAL VARIABLES WITH ANOVA ------------
-datasets <- list(america = data_america, europe = data_europe, full = data_full)
-
 B <- 10000
 anova_results <- data.frame(
   Dataset = character(),
@@ -259,6 +229,7 @@ p <- ggplot() +
 
 print(p)
 detach(data_full)
+
 #FULL MODEL WITH RANDOM INTERCEPT ---------------
 attach(data_full)
 
