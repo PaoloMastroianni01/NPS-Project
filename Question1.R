@@ -1,5 +1,6 @@
 library(dplyr)
 library(ggplot2)
+library(RColorBrewer)
 
 set.seed(19)
 #load data
@@ -10,15 +11,7 @@ data_scientist <- read.csv("reduced_dataset.csv",header=T)
 #are at least 5 observations
 data_filtered <- data_scientist %>%
   # Filtra per valori non NA in ConvertedCompYearly
-  filter(!is.na(ConvertedCompYearly) & EdLevel == 'Master’s degree (M.A., M.S., M.Eng., MBA, etc.)' & Age == "25-34 years old")%>%
-  # Conta le occorrenze per ogni paese e aggiungi come colonna temporanea `count`
-  group_by(Country) %>%
-  mutate(count = n()) %>%
-  # Filtra solo i paesi con almeno 10 occorrenze
-  filter(count >= 5) %>%
-  # Rimuovi la colonna temporanea `count`
-  ungroup() #%>%
-  #select(-count)
+  filter(!is.na(ConvertedCompYearly) & EdLevel == 'Master’s degree (M.A., M.S., M.Eng., MBA, etc.)' & Age == "25-34 years old")
 
 #change name of these countries just for better plots
 data_filtered <- data_filtered %>%
@@ -28,8 +21,9 @@ data_filtered <- data_filtered %>%
   mutate(Country = ifelse(Country == "United States of America", "USA", Country))
 
 #dataset with just the yearly compensation for each nation
-stipendi <- data_filtered[,c(5,7)]
+stipendi <- data_filtered[,c(5,8)]
 
+palette_15 <- colorRampPalette(brewer.pal(12, "Set3"))(15)
 ggplot(stipendi, aes(x = Country, y = ConvertedCompYearly, fill = Country)) +
   geom_boxplot(outlier.color = "red", outlier.shape = 16, outlier.size = 2) +
   coord_cartesian(ylim=c(0,350000)) +
@@ -45,11 +39,11 @@ ggplot(stipendi, aes(x = Country, y = ConvertedCompYearly, fill = Country)) +
     legend.text = element_text(size = 10),
     legend.title = element_text(size = 10)
   ) +
-  scale_fill_brewer(palette = "Set3")  # Palette di colori per differenziare i paesi
+  scale_fill_manual(values = palette_15)
 
 #DISTRIBUTION COMPARISON ---------------
 #function to perform permutation test
-perm_t_test=function(x,y,iter=1e3){
+perm_t_test=function(x,y,iter=1e4){
   
   T0=abs(median(x)-median(y))  # define the test statistic
   T_stat=numeric(iter) # a vector to store the values of each iteration
@@ -83,7 +77,7 @@ for(nation in levels(data_filtered$Country)){
 }
 
 #build dataset with p-values of each country and plot them
-data <- data.frame(Country = c('Austria',"Denmark","France","Germany","Netherlands",'Polonia',"Portugal","Spain","Sweden","Switzerland","UK","USA"),p_value =p_vals)
+data <- data.frame(Country = c('Austria','Belgium','Canada',"Denmark","France","Germany","Netherlands",'Polonia',"Portugal","Spain","Sweden","Switzerland","UK","USA"),p_value =p_vals)
 data <- data %>%
   mutate(p_value_category = case_when(
     p_value < 0.05 ~ "< 0.05",
@@ -157,8 +151,8 @@ ggplot(results, aes(x = Country, y = Median)) +
     x = "Country",
     y = "Median and Confidence Interval"
   ) +
-  geom_hline(yintercept = results[9,3], linetype = "dashed", color = "red") +
-  geom_hline(yintercept = results[9,4], linetype = "dashed", color = "red") +
+  geom_hline(yintercept = results[2,3], linetype = "dashed", color = "red") +
+  geom_hline(yintercept = results[2,4], linetype = "dashed", color = "red") +
   theme_minimal()
 
 table(stipendi$Country)
