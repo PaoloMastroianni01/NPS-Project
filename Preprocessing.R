@@ -1,3 +1,4 @@
+#preprocessing on 2023 dataset. For 2022 and 2024 it was basically the same besides some indexes changings
 #load data
 data_scientist <- read.csv('survey_results_public.csv',header=T)
 
@@ -153,7 +154,7 @@ redefine_orgsize <- function(df) {
 data_scientist <- redefine_orgsize(data_scientist)
 
 #create csv file with reduced dataset
-write.csv(data_scientist, "reduced_dataset.csv", row.names = FALSE)
+write.csv(data_scientist, "reduced_dataset2023.csv", row.names = FALSE)
 
 
 
