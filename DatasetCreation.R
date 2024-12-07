@@ -65,4 +65,7 @@ data_scientist$EdLevel[data_scientist$EdLevel %in% c("Other doctoral degree (Ph.
 data_scientist$EdLevel[data_scientist$EdLevel %in% c("Bachelor’s degree (B.A., B.S., B.Eng., etc.)")] <- "Bachelor Degree"
 data_scientist$EdLevel[data_scientist$EdLevel %in% c("Master’s degree (M.A., M.S., M.Eng., MBA, etc.)")] <- "Master Degree"
 
+data_scientist$RemoteWork[data_scientist$RemoteWork %in% c("Remote",'Fully remote')] <- "Remote"
+data_scientist$RemoteWork[data_scientist$RemoteWork %in% c("In-person",'Full in-person')] <- "In-person"
+
 write.csv(data_scientist,'reduced_dataset.csv')

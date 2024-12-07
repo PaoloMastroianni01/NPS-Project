@@ -9,13 +9,14 @@ library(dplyr)
 #read file
 data_scientist <- read.csv("reduced_dataset.csv",header=T)
 
+
 #CATEGORICAL COLUMNS PLOTS ---------------
 #columns we want to plot
 cols <- names(data_scientist)
-cols <- cols[-c(2,5:14)]
-vec <- c(1,3,4)
+cols <- cols[-c(1,4,8:15)]
+vec <- c(2,3,5)
 #for each variable of interest, we plot it against the yearly compensation
-for(idx in 1:length(cols)){
+for(idx in seq_along(vec)){
   col <- cols[idx]
   i <- vec[idx]
 data_filtered <- data_scientist[!is.na(data_scientist$ConvertedCompYearly) & !is.na(data_scientist[,i]), ]
