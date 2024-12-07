@@ -41,16 +41,28 @@ inflation_factors2023 <- c(
   `United States of America` = 1.042
 )
 
-# Correggere il salario per il 2022
+# Correct 2022 salary
 data_scientist_2022$ConvertedCompYearly <- 
   data_scientist_2022$ConvertedCompYearly * 
   sapply(data_scientist_2022$Country, function(country) inflation_factors2022[[country]])
 
-# Correggere il salario per il 2023
+# Correct 2023 salary
 data_scientist_2023$ConvertedCompYearly <- 
   data_scientist_2023$ConvertedCompYearly * 
   sapply(data_scientist_2023$Country, function(country) inflation_factors2023[[country]])
 
 data_scientist <- rbind(data_scientist_2022,data_scientist_2023,data_scientist_2024)
+
+# Filter for our needs
+data_scientist <- data_scientist[data_scientist$EdLevel != "Something else", ]
+data_scientist <- data_scientist[-which(data_scientist$Age=='Prefer not to say'),]
+
+# Change factor names
+data_scientist$EdLevel[data_scientist$EdLevel %in% c("Other doctoral degree (Ph.D., Ed.D., etc.)", 
+                                                     "Professional degree (JD, MD, Ph.D, Ed.D, etc.)",
+                                                     'Professional degree (JD, MD, etc.)')] <- "PhD"
+
+data_scientist$EdLevel[data_scientist$EdLevel %in% c("Bachelor’s degree (B.A., B.S., B.Eng., etc.)")] <- "Bachelor Degree"
+data_scientist$EdLevel[data_scientist$EdLevel %in% c("Master’s degree (M.A., M.S., M.Eng., MBA, etc.)")] <- "Master Degree"
 
 write.csv(data_scientist,'reduced_dataset.csv')
