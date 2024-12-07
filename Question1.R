@@ -11,7 +11,7 @@ data_scientist <- read.csv("reduced_dataset.csv",header=T)
 #are at least 5 observations
 data_filtered <- data_scientist %>%
   # Filtra per valori non NA in ConvertedCompYearly
-  filter(!is.na(ConvertedCompYearly) & EdLevel == 'Master’s degree (M.A., M.S., M.Eng., MBA, etc.)' & Age == "25-34 years old")
+  filter(!is.na(ConvertedCompYearly) & EdLevel == 'Master Degree' & Age == "25-34 years old")
 
 #change name of these countries just for better plots
 data_filtered <- data_filtered %>%
