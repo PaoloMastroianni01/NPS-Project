@@ -19,17 +19,13 @@ set.seed(19)
 #LOAD AND CLEAN DATASETS -----------
 data_scientist <- read.csv("reduced_dataset.csv",header=T)
 data_filtered <- data_scientist %>% filter(!is.na(ConvertedCompYearly)& !is.na(WorkExp))
-data_filtered <- data_filtered[,c(3:7)]
+data_filtered <- data_filtered[,c(3:8)]
 
 #obtain only europe countries with at least 7 observations and with maximum 20 years of experience (due to lack of data)
 data_europe <- data_filtered %>%
   filter((Country != "United States of America" & Country != "Canada")& WorkExp <= 20 & EdLevel!="Some college/university study without earning a degree") %>%
-  group_by(Country) %>%
-  mutate(count = n()) %>%
-  filter(count >= 7) %>%
-  ungroup() %>%
   mutate(Region = ifelse(Country == "Italy", "Italy", "Other Europe")) 
-data_europe <- data_europe[,-6]
+data_europe <- data_europe[,-c(3,4)]
 
 #find outliers and remove
 depth_values <- depthContour(cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly), 
@@ -44,8 +40,9 @@ data_europe <- data_europe[non_outliers_index, ]
 
 #the same for america
 data_america <- data_filtered %>%
-  filter((Country == "United States of America" | Country == "Canada") & WorkExp <= 20& EdLevel!="Some college/university study without earning a degree") %>%
+  filter((Country == "United States of America" | Country == "Canada") & WorkExp <= 20 & EdLevel!="Some college/university study without earning a degree") %>%
   mutate(Region = "America")
+data_america <- data_america[,-c(3,4)]
 
 depth_values <- depthContour(cbind(data_america$WorkExp, data_america$ConvertedCompYearly), 
                              depth_params = list(method = "Tukey"),ylim = c(0,750000))
@@ -134,7 +131,7 @@ process_and_plot_ed_level <- function(df, dataset_name) {
   p <- ggplot() +
     geom_point(data = df, aes(x = WorkExp, y = ConvertedCompYearly), alpha = 0.5, color = "darkgrey") +
     geom_line(data = prediction_grid, aes(x = WorkExp, y = fit, color = EdLevel), size = 1) +
-    geom_ribbon(data = prediction_grid, aes(x = WorkExp, ymin = se_lower, ymax = se_upper, fill = EdLevel), alpha = 0.2) +
+    #geom_ribbon(data = prediction_grid, aes(x = WorkExp, ymin = se_lower, ymax = se_upper, fill = EdLevel), alpha = 0.2) +
     scale_color_manual(values = c("red", "black", "darkblue", "forestgreen")) +
     scale_fill_manual(values = c("red", "black", "darkblue", "forestgreen")) +
     labs(
@@ -169,7 +166,7 @@ process_and_plot_org_size <- function(df,dataset_name) {
   p <- ggplot() +
     geom_point(data = df, aes(x = WorkExp, y = ConvertedCompYearly), alpha = 0.5, color = "darkgrey") +
     geom_line(data = prediction_grid, aes(x = WorkExp, y = fit, color = OrgSize), size = 1) +
-    geom_ribbon(data = prediction_grid, aes(x = WorkExp, ymin = se_lower, ymax = se_upper, fill = OrgSize), alpha = 0.2) +
+    #geom_ribbon(data = prediction_grid, aes(x = WorkExp, ymin = se_lower, ymax = se_upper, fill = OrgSize), alpha = 0.2) +
     scale_color_manual(values = c("red", "black", "darkblue", "forestgreen")) +
     scale_fill_manual(values = c("red", "black", "darkblue", "forestgreen")) +
     labs(
