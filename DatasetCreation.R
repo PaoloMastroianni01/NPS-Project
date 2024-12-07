@@ -6,15 +6,15 @@ data_scientist_2023 <- read.csv("reduced_dataset_2023.csv",header=T)
 data_scientist_2024 <- read.csv("reduced_dataset_2024.csv",header=T)
 
 #we will focus only on these nations
-data_scientist_2022 <- data_scientist_2022[data_scientist_2022$Country %in% c('Austria','Belgio','Canada','Denmark','France','Germany','Italy',
+data_scientist_2022 <- data_scientist_2022[data_scientist_2022$Country %in% c('Austria','Belgium','Canada','Denmark','France','Germany','Italy',
                                                                               'Netherlands','Poland','Portugal','Spain','Sweden','Switzerland',
                                                                               'United Kingdom of Great Britain and Northern Ireland','United States of America'),]
 
-data_scientist_2023 <- data_scientist_2023[data_scientist_2023$Country %in% c('Austria','Belgio','Canada','Denmark','France','Germany','Italy',
+data_scientist_2023 <- data_scientist_2023[data_scientist_2023$Country %in% c('Austria','Belgium','Canada','Denmark','France','Germany','Italy',
                                                                               'Netherlands','Poland','Portugal','Spain','Sweden','Switzerland',
                                                                               'United Kingdom of Great Britain and Northern Ireland','United States of America'),]
 
-data_scientist_2024 <- data_scientist_2024[data_scientist_2024$Country %in% c('Austria','Belgio','Canada','Denmark','France','Germany','Italy',
+data_scientist_2024 <- data_scientist_2024[data_scientist_2024$Country %in% c('Austria','Belgium','Canada','Denmark','France','Germany','Italy',
                                                                               'Netherlands','Poland','Portugal','Spain','Sweden','Switzerland',
                                                                               'United Kingdom of Great Britain and Northern Ireland','United States of America'),]
 
