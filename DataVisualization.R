@@ -13,8 +13,8 @@ data_scientist <- read.csv("reduced_dataset.csv",header=T)
 #CATEGORICAL COLUMNS PLOTS ---------------
 #columns we want to plot
 cols <- names(data_scientist)
-cols <- cols[-c(1,4,8:15)]
-vec <- c(2,3,5)
+cols <- cols[-c(1,2,5,7:16)]
+vec <- c(3,4,6)
 #for each variable of interest, we plot it against the yearly compensation
 for(idx in seq_along(vec)){
   col <- cols[idx]
