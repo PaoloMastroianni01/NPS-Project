@@ -240,3 +240,86 @@ r.squaredGLMM(model_cubic_splines_2)
 dotplot(ranef(model_cubic_splines_2, condVar=T))
 
 detach(data_full)
+
+#EVOLUTION OF SALARIES FOR EDLEVEL, ORGSIZE AND REGION ----------
+# Funzione per generare il modello e le previsioni
+generate_predictions <- function(data, var_name) {
+  
+  # Estrai i livelli unici della variabile di interesse (OrgSize o EdLevel)
+  levels_var <- levels(data[[var_name]])
+  
+  # Crea una griglia per WorkExp
+  WorkExp.grid <- seq(1, 15, by = 1)
+  
+  # Crea una griglia di previsioni
+  prediction_grid <- expand.grid(WorkExp = WorkExp.grid, OrgSize = levels_var)
+  
+  # Inizializza una lista per le previsioni
+  preds_list <- list()
+  
+  for (level in levels_var) {
+    
+    # Sottogruppo per ciascun livello
+    data_subgroup <- data[data[[var_name]] == level, ]
+    
+    # Crea il modello con splines cubiche
+    model <- lm(ConvertedCompYearly ~ bs(WorkExp, degree = 2, df = 4), data = data_subgroup)
+    
+    # Genera le previsioni e l'intervallo di confidenza
+    preds <- predict(model, newdata = prediction_grid, se = TRUE)
+    
+    # Aggiungi le previsioni al dataframe
+    prediction_grid[[paste0("fit_", level)]] <- preds$fit
+    prediction_grid[[paste0("se_upper_", level)]] <- preds$fit + 2 * preds$se.fit
+    prediction_grid[[paste0("se_lower_", level)]] <- preds$fit - 2 * preds$se.fit
+  }
+  
+  # Restituisci il dataframe con tutte le previsioni
+  return(prediction_grid)
+}
+# Funzione per creare il grafico
+plot_predictions <- function(prediction_data, title) {
+  
+  # Reshape per ottenere le previsioni in formato lungo
+  plot_data <- reshape(prediction_data,
+                       varying = list(grep("^fit_", names(prediction_data), value = TRUE),
+                                      grep("^se_upper_", names(prediction_data), value = TRUE),
+                                      grep("^se_lower_", names(prediction_data), value = TRUE)),
+                       v.names = c("fit", "se_upper", "se_lower"),
+                       timevar = "model",
+                       times = levels(prediction_data$OrgSize),
+                       direction = "long")
+  
+  # Grafico con ggplot
+  ggplot(plot_data, aes(x = WorkExp, y = fit, color = model, group = model)) +
+    geom_line() +
+    #geom_ribbon(aes(ymin = se_lower, ymax = se_upper, fill = model), alpha = 0.2) +
+    labs(title = title,
+         x = "Esperienza Lavorativa (anni)",
+         y = "Compenso Annuale Predetto",
+         color = "Dimensione Organizzazione",
+         fill = "Dimensione Organizzazione") +
+    theme_minimal() +
+    theme(legend.position = "bottom")
+}
+
+# Cambia in factor
+data_europe$EdLevel <- factor(data_europe$EdLevel)
+data_america$EdLevel <- factor(data_america$EdLevel)
+data_europe$OrgSize <- factor(data_europe$OrgSize)
+data_america$OrgSize <- factor(data_america$OrgSize)
+data_full$Region <- factor(data_full$Region)
+
+# Creare le previsioni
+prediction_europe <- generate_predictions(data_europe, "OrgSize")
+prediction_america <- generate_predictions(data_america, "OrgSize")
+prediction_europe_edlevel <- generate_predictions(data_europe, "EdLevel")
+prediction_america_edlevel <- generate_predictions(data_america, "EdLevel")
+prediction_full_region <- generate_predictions(data_full, "Region")
+
+# Creare il grafico
+plot_predictions(prediction_europe, "Predizioni per OrgSize - Europa")
+plot_predictions(prediction_america, "Predizioni per OrgSize - America")
+plot_predictions(prediction_europe_edlevel, "Predizioni per EdLevel - Europa")
+plot_predictions(prediction_america_edlevel, "Predizioni per EdLevel - America")
+plot_predictions(prediction_full_region, "Predizioni per Region - Full")
