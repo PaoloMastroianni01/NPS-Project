@@ -11,7 +11,7 @@ data_scientist <- read.csv("reduced_dataset.csv",header=T)
 #are at least 5 observations
 data_filtered <- data_scientist %>%
   # Filtra per valori non NA in ConvertedCompYearly
-  filter(!is.na(ConvertedCompYearly) & EdLevel == 'Master Degree' & Age == "25-34 years old")
+  filter(!is.na(ConvertedCompYearly) & WorkExp <= 15)
 
 #change name of these countries just for better plots
 data_filtered <- data_filtered %>%
@@ -151,8 +151,8 @@ ggplot(results, aes(x = Country, y = Median)) +
     x = "Country",
     y = "Median and Confidence Interval"
   ) +
-  geom_hline(yintercept = results[2,3], linetype = "dashed", color = "red") +
-  geom_hline(yintercept = results[2,4], linetype = "dashed", color = "red") +
+  geom_hline(yintercept = results[results$Country=='Italy',3], linetype = "dashed", color = "red") +
+  geom_hline(yintercept = results[results$Country=='Italy',4], linetype = "dashed", color = "red") +
   theme_minimal()
 
 table(stipendi$Country)
