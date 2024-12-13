@@ -21,38 +21,51 @@ data_scientist <- read.csv("reduced_dataset.csv",header=T)
 data_filtered <- data_scientist %>% filter(!is.na(ConvertedCompYearly)& !is.na(WorkExp))
 data_filtered <- data_filtered[,c(3:8)]
 
-#obtain only europe countries with at least 7 observations and with maximum 20 years of experience (due to lack of data)
+#obtain only europe countries with maximum 15 years of experience and who got at least a bachelor degree
 data_europe <- data_filtered %>%
-  filter((Country != "United States of America" & Country != "Canada")& WorkExp <= 20 & EdLevel!="Some college/university study without earning a degree") %>%
+  filter((Country != "United States of America" & Country != "Canada")& WorkExp <= 15 & EdLevel!="Some college/university study without earning a degree") %>%
   mutate(Region = ifelse(Country == "Italy", "Italy", "Other Europe")) 
-data_europe <- data_europe[,-c(3,4)]
+data_europe <- data_europe[,-c(4)]
 
 #find outliers and remove
 depth_values <- depthContour(cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly), 
                              depth_params = list(method = "Tukey"),ylim = c(0,750000))
 
-bagplot_data <- bagplot(cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly), 
-                        factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
-outliers <- bagplot_data$pxy.outlier
-coordinate <- cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly)
-non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
-data_europe <- data_europe[non_outliers_index, ]
+#iteratively remove outliers (because some of them are masked by others)
+flag <- TRUE
+while(flag){
+  bagplot_data <- bagplot(cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly), 
+                          factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
+  outliers <- bagplot_data$pxy.outlier
+  coordinate <- cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly)
+  non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
+  data_europe <- data_europe[non_outliers_index, ]
+  if(length(outliers)==0){
+    flag <- FALSE
+  }
+}
 
 #the same for america
 data_america <- data_filtered %>%
-  filter((Country == "United States of America" | Country == "Canada") & WorkExp <= 20 & EdLevel!="Some college/university study without earning a degree") %>%
+  filter((Country == "United States of America" | Country == "Canada") & WorkExp <= 15 & EdLevel!="Some college/university study without earning a degree") %>%
   mutate(Region = "America")
-data_america <- data_america[,-c(3,4)]
+data_america <- data_america[,-c(4)]
 
 depth_values <- depthContour(cbind(data_america$WorkExp, data_america$ConvertedCompYearly), 
                              depth_params = list(method = "Tukey"),ylim = c(0,750000))
 
-bagplot_data <- bagplot(cbind(data_america$WorkExp, data_america$ConvertedCompYearly), 
-                        factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
-outliers <- bagplot_data$pxy.outlier
-coordinate <- cbind(data_america$WorkExp, data_america$ConvertedCompYearly)
-non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
-data_america <- data_america[non_outliers_index, ]
+flag <- TRUE
+while(flag){
+  bagplot_data <- bagplot(cbind(data_america$WorkExp, data_america$ConvertedCompYearly), 
+                          factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
+  outliers <- bagplot_data$pxy.outlier
+  coordinate <- cbind(data_america$WorkExp, data_america$ConvertedCompYearly)
+  non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
+  data_america <- data_america[non_outliers_index, ]
+  if(length(outliers)==0){
+    flag <- FALSE
+  }
+}
 
 #join all
 data_full <- rbind(data_america, data_europe)
@@ -60,12 +73,18 @@ data_full <- rbind(data_america, data_europe)
 depth_values <- depthContour(cbind(data_full$WorkExp, data_full$ConvertedCompYearly), 
                              depth_params = list(method = "Tukey"),ylim = c(0,750000))
 
-bagplot_data <- bagplot(cbind(data_full$WorkExp, data_full$ConvertedCompYearly), 
-                        factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
-outliers <- bagplot_data$pxy.outlier
-coordinate <- cbind(data_full$WorkExp, data_full$ConvertedCompYearly)
-non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
-data_full <- data_full[non_outliers_index, ]
+flag <- TRUE
+while(flag){
+  bagplot_data <- bagplot(cbind(data_full$WorkExp, data_full$ConvertedCompYearly), 
+                          factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
+  outliers <- bagplot_data$pxy.outlier
+  coordinate <- cbind(data_full$WorkExp, data_full$ConvertedCompYearly)
+  non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
+  data_full <- data_full[non_outliers_index, ]
+  if(length(outliers)==0){
+    flag <- FALSE
+  }
+}
 
 #redefine the organization size factor
 datasets <- list(data_europe = data_europe, data_america = data_america, data_full = data_full)
@@ -187,6 +206,7 @@ for (name in names(datasets)) {
   process_and_plot_ed_level(datasets[[name]],name)
   process_and_plot_org_size(datasets[[name]],name)
 }
+
 #REGRESSION AND PLOT FOR REGION ----------
 attach(data_full)
 model_cubic_splines_2 <- lm(ConvertedCompYearly ~ bs(WorkExp, degree = 3,df = 7)+Region)
