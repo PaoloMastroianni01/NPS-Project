@@ -29,13 +29,14 @@ data_europe <- data_europe[,-c(4)]
 
 #find outliers and remove
 depth_values <- depthContour(cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly), 
-                             depth_params = list(method = "Tukey"),ylim = c(0,750000))
+                             depth_params = list(method = "Tukey"),ylim = c(0,400000))
 
 #iteratively remove outliers (because some of them are masked by others)
 flag <- TRUE
 while(flag){
   bagplot_data <- bagplot(cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly), 
-                          factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
+                          factor = 3, show.whiskers = TRUE,ylim=c(0,400000),xlab="Work Experience",ylab="Salary")
+  title("Europe")
   outliers <- bagplot_data$pxy.outlier
   coordinate <- cbind(data_europe$WorkExp, data_europe$ConvertedCompYearly)
   non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
@@ -52,12 +53,13 @@ data_america <- data_filtered %>%
 data_america <- data_america[,-c(4)]
 
 depth_values <- depthContour(cbind(data_america$WorkExp, data_america$ConvertedCompYearly), 
-                             depth_params = list(method = "Tukey"),ylim = c(0,750000))
+                             depth_params = list(method = "Tukey"),ylim = c(0,400000))
 
 flag <- TRUE
 while(flag){
   bagplot_data <- bagplot(cbind(data_america$WorkExp, data_america$ConvertedCompYearly), 
-                          factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
+                          factor = 3, show.whiskers = TRUE,ylim=c(0,400000),xlab="Work Experience",ylab="Salary")
+  title("America")
   outliers <- bagplot_data$pxy.outlier
   coordinate <- cbind(data_america$WorkExp, data_america$ConvertedCompYearly)
   non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
@@ -71,12 +73,13 @@ while(flag){
 data_full <- rbind(data_america, data_europe)
 
 depth_values <- depthContour(cbind(data_full$WorkExp, data_full$ConvertedCompYearly), 
-                             depth_params = list(method = "Tukey"),ylim = c(0,750000))
+                             depth_params = list(method = "Tukey"),ylim = c(0,400000))
 
 flag <- TRUE
 while(flag){
   bagplot_data <- bagplot(cbind(data_full$WorkExp, data_full$ConvertedCompYearly), 
-                          factor = 3, show.whiskers = TRUE,ylim=c(0,750000))
+                          factor = 3, show.whiskers = TRUE,ylim=c(0,400000),xlab="Work Experience",ylab="Salary")
+  title("Full Dataset")
   outliers <- bagplot_data$pxy.outlier
   coordinate <- cbind(data_full$WorkExp, data_full$ConvertedCompYearly)
   non_outliers_index <- !apply(coordinate, 1, function(row) any(row[1] == outliers[,1] & row[2] == outliers[,2]))
@@ -246,7 +249,8 @@ p <- ggplot() +
 
 print(p)
 detach(data_full)
-
+#Imposta Italy come riferimento
+data_full$Country <- relevel(as.factor(data$Country),ref="Italy")
 #FULL MODEL WITH RANDOM INTERCEPT ---------------
 attach(data_full)
 
@@ -312,13 +316,13 @@ plot_predictions <- function(prediction_data, title) {
   
   # Grafico con ggplot
   ggplot(plot_data, aes(x = WorkExp, y = fit, color = model, group = model)) +
-    geom_line() +
+    geom_line(size=1) +
     #geom_ribbon(aes(ymin = se_lower, ymax = se_upper, fill = model), alpha = 0.2) +
     labs(title = title,
-         x = "Esperienza Lavorativa (anni)",
-         y = "Compenso Annuale Predetto",
-         color = "Dimensione Organizzazione",
-         fill = "Dimensione Organizzazione") +
+         x = "Work Experience (years)",
+         y = "Predicted Annual Salary",
+         color = "Education Level",
+         fill = "Education Level") +
     theme_minimal() +
     theme(legend.position = "bottom")
 }
@@ -338,8 +342,8 @@ prediction_america_edlevel <- generate_predictions(data_america, "EdLevel")
 prediction_full_region <- generate_predictions(data_full, "Region")
 
 # Creare il grafico
-plot_predictions(prediction_europe, "Predizioni per OrgSize - Europa")
-plot_predictions(prediction_america, "Predizioni per OrgSize - America")
-plot_predictions(prediction_europe_edlevel, "Predizioni per EdLevel - Europa")
-plot_predictions(prediction_america_edlevel, "Predizioni per EdLevel - America")
-plot_predictions(prediction_full_region, "Predizioni per Region - Full")
+plot_predictions(prediction_europe, "Predictions for OrgSize - Europe")
+plot_predictions(prediction_america, "Predictions for OrgSize - America")
+plot_predictions(prediction_europe_edlevel, "Predictions for EdLevel - Europe")
+plot_predictions(prediction_america_edlevel, "Predictions for EdLevel - America")
+plot_predictions(prediction_full_region, "Predictions for Region - Full")
