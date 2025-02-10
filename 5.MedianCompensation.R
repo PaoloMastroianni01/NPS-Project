@@ -7,8 +7,6 @@ set.seed(19)
 data_scientist <- read.csv("reduced_dataset.csv",header=T)
 
 #FILTERING DATASET -------------
-#we filter the data keeping just people in range 25-34 years old who got a Master Degree and in countries in which there
-#are at least 5 observations
 data_filtered <- data_scientist %>%
   # Filtra per valori non NA in ConvertedCompYearly
   filter(!is.na(ConvertedCompYearly) & WorkExp <= 15)
