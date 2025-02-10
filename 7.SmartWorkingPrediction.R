@@ -80,42 +80,7 @@ plot_data <- df_percent %>%
     )
   )
 
-#plot 1 (divided cases)
-ggplot(plot_data, aes(x = Year, y = Percentage, color = Level)) +
-  geom_point(data = plot_data %>% filter(!Predicted), size = 2) +
-  geom_line(data = plot_data %>% filter(!Predicted), aes(group = Level), size = 1) +
-  geom_line(data = plot_data %>% filter(Year >= 2024),
-            aes(group = Level),
-            linetype = "dashed", size = 1) +  # Linea tratteggiata dal 2024 al 2025
-  geom_point(data = plot_data %>% filter(Predicted), size = 3, shape = 17) +
-  geom_errorbar(data = plot_data %>% filter(Year == 2025),
-                aes(ymin = c(remote_analysis$conf_interval[1],
-                             hybrid_analysis$conf_interval[1],
-                             inperson_analysis$conf_interval[1]),
-                    ymax = c(remote_analysis$conf_interval[2],
-                             hybrid_analysis$conf_interval[2],
-                             inperson_analysis$conf_interval[2])),
-                width = 0.2, size = 1) +  # Intervallo di confidenza per il 2025
-  geom_text(data = plot_data %>% filter(Year == 2025),
-            aes(x = 2025, 
-                y = c(remote_analysis$prediction, 
-                      hybrid_analysis$prediction, 
-                      inperson_analysis$prediction),
-                label = round(c(remote_analysis$prediction, 
-                                hybrid_analysis$prediction, 
-                                inperson_analysis$prediction), 2),
-                color = c("Remote", "Hybrid", "In-person")),  # Colore associato alla categoria
-            vjust = -0.5, hjust = 1.1, size = 4) +  # Testo vicino alla previsione
-  facet_wrap(~Level, scales = "free_y", ncol = 3) +
-  scale_y_continuous(breaks = seq(0, 100, by = 2.5)) +  # Unifica la scala dell'asse y con intervallo di 2.5
-  labs(title = "Prediction of Work Modes for 2025",
-       x = "Year", y = "Percentage (%)",
-       color = "Work Mode") +
-  theme_minimal(base_size = 14) +
-  theme(legend.position = "none")
-
-
-#plot 2 (all together)
+#plot
 ggplot(plot_data, aes(x = Year, y = Percentage, color = Level)) +
   geom_point(data = plot_data %>% filter(!Predicted), size = 2) +
   geom_line(data = plot_data %>% filter(!Predicted), aes(group = Level), size = 1) +
@@ -155,5 +120,3 @@ conf_table <- data.frame(
 
 grid.newpage()
 grid.table(conf_table)
-
-
